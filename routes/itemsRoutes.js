@@ -1,18 +1,26 @@
 const express = require('express');
+const ExpressError = require('../expressError');
 const router = new express.Router();
 
 
-router.get('/', (req, res) => {
+router.get('/', function showAllItems(req, res) {
     return res.json({items});
 })
 
 
-router.post('/', function createNewItem(req, res) {
-    console.log(req);
+router.post('/', function createNewItem(req, res, next) {
+    try {
+    if(!req.body.name || !req.body.price) throw new ExpressError("Please provide complete data", 400);
+    const existingItem = items.find(item => item.name === req.body.name);
+    if(existingItem) throw new ExpressError("Item already exists", 400);
     const newItem = {name: req.body.name, price: req.body.price}
     items.push(newItem);
     return res.status(201).json({item: newItem});
-})
+    } catch(e) {
+        return next(e);
+    }
+});
+
 
 
 // router.post('/post_test', function testPost(req, res) {
@@ -20,17 +28,17 @@ router.post('/', function createNewItem(req, res) {
 //     res.send(items);
 // })
 
-router.get('/:name', (req, res) => {
+router.get('/:name', function showOneItem(req, res) {
     const foundItem = items.find(item => item.name === req.params.name);
     if(foundItem === undefined) {
-        throw error;
+        throw new ExpressError("Item not found", 404);
     }
     res.json({item: foundItem});
 })
 
 
 
-router.patch('/:name', (req, res) => {
+router.patch('/:name', function patchItem(req, res) {
     const foundItem = items.find(item => item.name === req.params.name);
     if(foundItem === undefined) {
         throw error;
@@ -39,8 +47,9 @@ router.patch('/:name', (req, res) => {
     res.json({item: foundItem});
 })
 
-router.delete('/:name', (req, res) => {
+router.delete('/:name', function deleteItem(req, res) {
     const foundItem = items.findIndex(item => item.name === req.params.name);
+    console.log(foundItem);
     if(foundItem === -1) {
         throw error;
     }

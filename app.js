@@ -4,6 +4,7 @@ const morgan = require('morgan');
 // const bodyParser = require('body-parser');
 const items = require('./fakeDb');
 const itemsRoutes = require('./routes/itemsRoutes');
+const ExpressError = require('./expressError');
 
 
 app.use(express.json());
